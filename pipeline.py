@@ -1,17 +1,8 @@
 import os
 import random
-from csv import writer
+import pandas as pd
 
-from play_video import play_video
-
-
-def append_list_as_row(file_name, list_of_elem):
-    # Open file in append mode
-    with open(file_name, 'a+', newline='') as write_obj:
-        # Create a writer object from csv module
-        csv_writer = writer(write_obj)
-        # Add contents of list as last row in the csv file
-        csv_writer.writerow(list_of_elem)
+from playVideo import play_video
 
 
 def get_input():
@@ -19,14 +10,14 @@ def get_input():
 
     while True:
         arousal = int(input('Value for arousal from 1 to 9: '))
-        if arousal in range(1, 9):
+        if arousal in range(1, 10):
             values.append(arousal)
             break
         print('Wrong value')
 
     while True:
         valence = int(input('Value for valence from 1 to 9: '))
-        if valence in range(1, 9):
+        if valence in range(1, 10):
             values.append(valence)
             break
         print('Wrong value')
@@ -34,42 +25,34 @@ def get_input():
     return values
 
 
-def get_dir_specific(path):
-    os.chdir(path)
-    directories = os.listdir()
-    for el in directories:
-        if el == 'TaskC':
-            print('TaskC folder exists')
-            os.chdir(path + os.sep + el)
-            break
-        else:
-            print('TaskC folder not found in ' + path)
-            exit()
+def get_subfolders(path_to_data):
+    video_categories = os.listdir(path_to_data)
+    random.shuffle(video_categories)
+    print(video_categories)
+    return video_categories
 
 
-def get_subfolders():
-    subfolders = [x[0] for x in os.walk(os.getcwd())][1:]
-    random.shuffle(subfolders)
-    print(subfolders)
-    return subfolders
+def work_folders(path_to_data, subfolders):
+    av_scores = pd.DataFrame()
 
-
-def work_folders(subfolders):
     for folder in subfolders:
-        os.chdir(folder)
-        print(os.getcwd())
-        for file in os.listdir():
-            play_video(file, 'timestamps.txt')
+        for file in os.listdir(path_to_data+os.sep+folder):
+
+            path_to_video = path_to_data+os.sep+folder+os.sep+file
+
+            play_video(path_to_video, 'timestamps.txt')
+
             values = get_input()
             print(values)
-            path = os.getcwd() + os.sep + file
-            row_content = [path, values[0], values[1]]
-            append_list_as_row('TaskC_data.csv', row_content)
-            print(path)
-        os.chdir('..')
+
+            temp = pd.DataFrame([[path_to_video, values[0], values[1]]],
+                                columns=['path_to_video','arousal', 'valence'])
+            av_scores = pd.concat([av_scores, temp])
+
+    return av_scores
 
 
 if __name__ == "__main__":
-    print(os.getcwd())
-    get_dir_specific(os.getcwd())
-    work_folders(get_subfolders())
+    path_to_data = r"C:\Users\simon\Desktop\EMTEQ\OpenFace\data_collection\TaskC"
+    av_scores = work_folders(path_to_data, get_subfolders(path_to_data))
+    av_scores.to_csv("AV_scores.csv", index=False)
