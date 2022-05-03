@@ -10,7 +10,7 @@ import time
 def start_recording():
 
     # This will return video from the second webcam on your computer.
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
 
     # Define the codec and create VideoWriter object
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -34,7 +34,7 @@ def start_recording():
         cv2.imshow('Original', frame)
 
         # Wait for 'b' key to stop the program
-        if cv2.waitKey(1) & 0xFF == ord('b'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     # Close the window / Release webcam
@@ -45,3 +45,6 @@ def start_recording():
 
     # De-allocate any associated memory usage
     cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    start_recording()
