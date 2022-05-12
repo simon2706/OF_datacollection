@@ -1,0 +1,1 @@
+This directory should contain all scripts used for automatic labeling of the recorded videos. I would prefer to have everything as .py scripts and to import them in one jupyter notebook and to run them there.
