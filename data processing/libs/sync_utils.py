@@ -71,14 +71,14 @@ def get_task_timestamps_from_json(path_to_data, subject, task, filename):
         data = json.load(f)
     f.close()
 
-    timestamps = []
-    for i in range(0, len(data)):
-        timestamps.append(data[i]['Timestamp'])
+    calibration_start_timestamp = [
+       element['Timestamp'] / 1000 + 946684800 for element in data if 'calibration' in element['Label']][0]
+    calibration_end_timestamp = [
+       element['Timestamp'] / 1000 + 946684800 for element in data if 'calibration' in element['Label']][-1]
 
-    timestamps = [t / 1000 + 946684800 for t in timestamps]
     df_timestamps = pd.DataFrame(columns=['start', 'end'])
-    df_timestamps = df_timestamps.append({'start': timestamps[0],
-                                          'end': timestamps[-1]},
+    df_timestamps = df_timestamps.append({'start': calibration_start_timestamp,
+                                          'end': calibration_end_timestamp + 1.5}, #adding 1.5-second data from the end of last expression
                                          ignore_index=True)
     return df_timestamps
 

@@ -9,13 +9,13 @@ import json
 import warnings
 warnings.filterwarnings('ignore')
 
-timestamps = get_all_tasks_timestamps(r'C:\Users\user\Desktop\Data_Praksa\timestamps.csv')
-frames = get_maxMagnitude_frames(r'C:\Users\user\Desktop\Data_Praksa\maxMagnitude.csv')
+timestamps = get_all_tasks_timestamps(r'timestamps.csv')
+frames = get_maxMagnitude_frames(r'maxMagnitude.csv')
 
-path_to_data = r"C:\Users\user\Desktop\Data_Praksa\Data"
-path_to_saved_files = r"C:\Users\user\Desktop\Data_Praksa\Data_processed_problematic"
+path_to_data = r"Data"
+path_to_saved_files = r"Data_processed"
 
-for subject in ['Participant 01']:
+for subject in os.listdir('Data'):
     print(subject)
     for task in os.listdir(path_to_data + os.sep + subject):
         for file in os.listdir(path_to_data + os.sep + subject + os.sep + task):
