@@ -21,6 +21,30 @@ def get_metadata_info_acceleration_divisor(metadata):
     return acceleration_divisor
 
 
+def get_metadata_info_gyroscope_divisor(metadata):
+    gyroscope_divisor = None
+    for line in metadata:
+        if line.find('#Imu/Properties.gyroscopeDivisor') != -1 or line.find('#Gyroscope/Properties.rawDivisor') != -1:
+            gyroscope_divisor = float(line.split(',')[1])
+    return gyroscope_divisor
+
+
+def get_metadata_info_magnetometer_divisor(metadata):
+    magnetometer_divisor = None
+    for line in metadata:
+        if line.find('#Imu/Properties.magnetometerDivisor') != -1 or line.find('#Magnetometer/Properties.rawDivisor') != -1:
+            magnetometer_divisor = float(line.split(',')[1])
+    return magnetometer_divisor
+
+
+def get_metadata_info_pressure_divisor(metadata):
+    pressure_divisor = None
+    for line in metadata:
+        if line.find('#Pressure/Properties.rawDivisor') != -1:
+            pressure_divisor = float(line.split(',')[1])
+    return pressure_divisor
+
+
 def get_metadata_info_emg_divisor(metadata):
     raw2voltage_emg_divisor = None
     for line in metadata:
@@ -106,7 +130,7 @@ def rename_columns(test_df, emg_columns_ordered):
     return test_df
 
 
-def normalize_accelerometer_data(test_df, acceleration_divisor):
+def scale_accelerometer_data(test_df, acceleration_divisor):
     accelerometer_cols = ['Imu/Accelerometer.x',
                           'Imu/Accelerometer.y', 'Imu/Accelerometer.z']
     test_df[accelerometer_cols] = test_df[accelerometer_cols] / \
@@ -114,7 +138,28 @@ def normalize_accelerometer_data(test_df, acceleration_divisor):
     return test_df
 
 
-def normalize_emg_data(test_df, raw2voltage_emg_divisor):
+def scale_gyroscope_data(test_df, gyroscope_divisor):
+    gyroscope_cols = ['Gyroscope/Raw.x', 'Gyroscope/Raw.y',
+                      'Gyroscope/Raw.z']
+    test_df[gyroscope_cols] = test_df[gyroscope_cols] / gyroscope_divisor
+    return test_df
+
+
+def scale_magnetometer_data(test_df, magnetometer_divisor):
+    magnetometer_cols = ['Magnetometer/Raw.x', 'Magnetometer/Raw.y',
+                         'Magnetometer/Raw.z']
+    test_df[magnetometer_cols] = test_df[magnetometer_cols] / \
+        magnetometer_divisor
+    return test_df
+
+
+def scale_pressure_data(test_df, pressure_divisor):
+    pressure_cols = ['Pressure/Raw']
+    test_df[pressure_cols] = test_df[pressure_cols] / pressure_divisor
+    return test_df
+
+
+def scale_emg_data(test_df, raw2voltage_emg_divisor):
     emg_cols = ['Emg/Filtered[0]', 'Emg/Filtered[1]', 'Emg/Filtered[2]',
                 'Emg/Filtered[3]', 'Emg/Filtered[4]', 'Emg/Filtered[5]',
                 'Emg/Filtered[6]', 'Emg/Amplitude[0]', 'Emg/Amplitude[1]',
@@ -124,7 +169,7 @@ def normalize_emg_data(test_df, raw2voltage_emg_divisor):
     return test_df
 
 
-def normalize_contact_data(test_df, contact2impedance_divisor):
+def scale_contact_data(test_df, contact2impedance_divisor):
     contact_cols = ['Emg/Contact[0]', 'Emg/Contact[1]', 'Emg/Contact[2]',
                     'Emg/Contact[3]', 'Emg/Contact[4]', 'Emg/Contact[5]',
                     'Emg/Contact[6]']
@@ -152,7 +197,7 @@ def load_data(path_to_data):
     Returns
     -------
     test_df : pandas.DataFrame
-        Formatted dataframe -  sensor values normalized, ordered and renamed
+        Formatted dataframe -  sensor values scaled, ordered and renamed
         columns.
     """
     '''
@@ -166,6 +211,9 @@ def load_data(path_to_data):
             data = data.replace("{}".format(line), '', 1)
 
     acceleration_divisor = get_metadata_info_acceleration_divisor(metadata)
+    gyroscope_divisor = get_metadata_info_gyroscope_divisor(metadata)
+    magnetometer_divisor = get_metadata_info_magnetometer_divisor(metadata)
+    pressure_divisor = get_metadata_info_pressure_divisor(metadata)
     raw2voltage_emg_divisor = get_metadata_info_emg_divisor(metadata)
     contact2impedance_divisor = get_metadata_info_contact_divisor(metadata)
 
@@ -176,8 +224,11 @@ def load_data(path_to_data):
 
     test_df = rename_columns(test_df, emg_columns_ordered)
 
-    test_df = normalize_accelerometer_data(test_df, acceleration_divisor)
-    test_df = normalize_emg_data(test_df, raw2voltage_emg_divisor)
-    test_df = normalize_contact_data(test_df, contact2impedance_divisor)
+    test_df = scale_accelerometer_data(test_df, acceleration_divisor)
+    test_df = scale_gyroscope_data(test_df, gyroscope_divisor())
+    test_df = scale_magnetometer_data(test_df, magnetometer_divisor)
+    test_df = scale_pressure_data(test_df, pressure_divisor)
+    test_df = scale_emg_data(test_df, raw2voltage_emg_divisor)
+    test_df = scale_contact_data(test_df, contact2impedance_divisor)
 
     return test_df
