@@ -38,13 +38,13 @@ def calculate_timestamp(path_to_video, fps, second, frame):
 
 if __name__ == "__main__":
 
-    path_to_video = r"C:\Users\kipri\OneDrive\Documents\EmteqLabs\EmteqVR Open Face System\Upload\Participant 01\TaskA\1651141886.8957078 - output.avi"
+    path_to_video = r"\Participant 01\TaskA\1651141886.8957078 - output.avi"
     video = load_video(path_to_video)
     frame_count = get_frameCount(video)
     fps = get_fps(video)
 
     second = 50
-    frame = 0   # value from 0 to FPS
-    show_image(video, fps, second, frame)
-
-    timestamp = calculate_timestamp(path_to_video, fps, second, frame)
+    for frame in range(0, 20):  # because fps==20
+        show_image(video, fps, second, frame)
+        timestamp = calculate_timestamp(path_to_video.split("/")[-1], fps, second, frame)
+        print(frame, timestamp)

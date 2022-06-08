@@ -78,7 +78,7 @@ def get_task_timestamps_from_json(path_to_data, subject, task, filename):
 
     df_timestamps = pd.DataFrame(columns=['start', 'end'])
     df_timestamps = df_timestamps.append({'start': calibration_start_timestamp,
-                                          'end': calibration_end_timestamp + 1.5}, #adding 1.5-second data from the end of last expression
+                                          'end': calibration_end_timestamp + 1.5},  # adding 1.5-second data from the end of last expression
                                          ignore_index=True)
     return df_timestamps
 

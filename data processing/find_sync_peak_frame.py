@@ -4,7 +4,7 @@ from libs.load_data import load_data
 import numpy as np
 
 # insert path/name of the csv file
-path_to_csv = r"C:\Users\kipri\OneDrive\Documents\EmteqLabs\EmteqVR Open Face System\Upload\Participant 01\TaskB\2022-04-28T12-52-04.csv"
+path_to_csv = r"Participant 01\TaskB\2022-04-28T12-52-04.csv"
 
 df = load_data(path_to_csv)
 

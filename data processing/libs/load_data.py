@@ -185,7 +185,6 @@ def string2dataFrame(data):
     test_df = test_df.dropna()
     return test_df
 
-
 def load_data(path_to_data):
     '''
      """The function reads the data from a specified path and formats it into
@@ -225,9 +224,9 @@ def load_data(path_to_data):
     test_df = rename_columns(test_df, emg_columns_ordered)
 
     test_df = scale_accelerometer_data(test_df, acceleration_divisor)
-    test_df = scale_gyroscope_data(test_df, gyroscope_divisor())
+    test_df = scale_gyroscope_data(test_df, gyroscope_divisor)
     test_df = scale_magnetometer_data(test_df, magnetometer_divisor)
-    test_df = scale_pressure_data(test_df, pressure_divisor)
+    #test_df = scale_pressure_data(test_df, pressure_divisor)
     test_df = scale_emg_data(test_df, raw2voltage_emg_divisor)
     test_df = scale_contact_data(test_df, contact2impedance_divisor)
 
