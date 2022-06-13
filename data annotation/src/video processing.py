@@ -74,7 +74,7 @@ def get_fps(video):
     return fps
 
 
-def mobilenet_preprocess_input(x, **kwargs):
+def mobilenet_preprocess_input(x):
     '''
     
 
@@ -96,7 +96,7 @@ def mobilenet_preprocess_input(x, **kwargs):
     inp[..., 1] -= 116.779
     inp[..., 2] -= 123.68
     inp = np.expand_dims(inp, axis=0)
-    return x
+    return inp
 
 
 def display_detected_emotions(frame, detected_emotion):
@@ -118,14 +118,15 @@ def display_detected_emotions(frame, detected_emotion):
     # Describe the type of font to be used.
     font = cv2.FONT_HERSHEY_SIMPLEX
     # Use putText() method for inserting text on video
-    cv2.putText(frame, 'TEXT ON VIDEO', (50, 50),
+    cv2.putText(frame, detected_emotion, (50, 50),
                 font, 1, (0, 255, 255),
                 2, cv2.LINE_4)
     # Display the resulting frame
     cv2.imshow("In progress", frame)
 
 
-def process_video(video, number_of_frames, imgProcessing, model):
+def process_video(video, number_of_frames, imgProcessing, model,
+                  show_detection):
     '''
     
 
@@ -156,9 +157,11 @@ def process_video(video, number_of_frames, imgProcessing, model):
         raw_frame = frame.copy()
 
         # Detect faces in the frame
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         bounding_boxes, points = imgProcessing.detect_faces(frame)
         points = points.T
 
+        
         # Iterate through the detected faces and detect their emotion
         for bbox, p in zip(bounding_boxes, points):
             # Change the bounding boxes to int
@@ -169,25 +172,28 @@ def process_video(video, number_of_frames, imgProcessing, model):
             face_img = frame[y1:y2, x1:x2, :]
             face_img = cv2.resize(face_img, INPUT_SIZE)
             # Adjust the frame for the appropriate architecture
-            face_img = mobilenet_preprocess_input(face_img)
-
+            inp = mobilenet_preprocess_input(face_img)
             # Predict the emotion of the detected face
-            scores = model.predict(face_img)[0]
+            scores = model.predict(inp)[0]
 
             # Save the prediction for the current frame
-            predictions.append(idx_to_class[np.argmax(scores)])
-
-            # If we want to show the detections
-            if show_detection:
+            predictions.append(scores)
+        
+        # If we want to show the detections
+        if show_detection:
+            if "scores" in locals():
                 display_detected_emotions(raw_frame,
                                           idx_to_class[np.argmax(scores)])
-                # creating 'q' as the quit button for the video
-                if cv2.waitKey(1) & 0xFF == ord('q'):
-                    # release the cap object
-                    video.release()
-                    # close all windows
-                    cv2.destroyAllWindows()
-                    break
+            else:
+                display_detected_emotions(raw_frame, "None")
+            # creating 'q' as the quit button for the video
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                # release the cap object
+                video.release()
+                # close all windows
+                cv2.destroyAllWindows()
+                break
+
     return predictions
 
 
@@ -218,7 +224,7 @@ def process_predictions(predictions):
 if __name__ == "__main__":
 
     # Path to data where the videos are stored
-    path_to_video = ".." + os.sep + "videos"
+    path_to_video = ".." + os.sep + "videos" + os.sep + "Matej.avi"
 
     # Path to the pretrained model
     path_to_models = ".." + os.sep + "models" + os.sep + "affectnet_emotions"
@@ -233,7 +239,7 @@ if __name__ == "__main__":
                     4: 'Neutral', 5: 'Sadness', 6: 'Surprise'}
 
     # 0 - Don't show the video, 1- Show video with detections
-    show_detection = 0
+    show_detection = 1
 
     # Load model
     model = load_model(path_to_models + os.sep + model)
@@ -251,7 +257,8 @@ if __name__ == "__main__":
     imgProcessing = FacialImageProcessing()
 
     # Process the video and get predictions
-    predictions = process_video(video, number_of_frames, imgProcessing, model)
+    predictions = process_video(video, number_of_frames, imgProcessing, model,
+                                show_detection)
 
     # Generate dataframes with prediction probabilities and finally prediction
     predict_proba, predict = process_predictions(predictions)
