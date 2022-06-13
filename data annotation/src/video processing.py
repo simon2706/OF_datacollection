@@ -218,14 +218,14 @@ def process_predictions(predictions):
 if __name__ == "__main__":
 
     # Path to data where the videos are stored
-    path_to_video = ""
+    path_to_video = ".." + os.sep + "videos"
 
     # Path to the pretrained model
     path_to_models = ".." + os.sep + "models" + os.sep + "affectnet_emotions"
     model = "mobilenet_7.h5"
 
     # Path where the detections will be stored
-    path_to_result = ""
+    path_to_result = ".." + os.sep + "annotations"
 
     # Define constants
     INPUT_SIZE = (224, 224)
