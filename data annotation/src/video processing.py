@@ -170,7 +170,12 @@ def process_video(video, number_of_frames, imgProcessing, model,
             x1, y1, x2, y2 = box[0:4]
             # Cut the frame using the detected bouding box cooridinates
             face_img = frame[y1:y2, x1:x2, :]
-            face_img = cv2.resize(face_img, INPUT_SIZE)
+            try:
+                face_img = cv2.resize(face_img, INPUT_SIZE)
+            except Exception as e:
+                print(str(e))
+                continue
+
             # Adjust the frame for the appropriate architecture
             inp = mobilenet_preprocess_input(face_img)
             # Predict the emotion of the detected face
@@ -246,7 +251,7 @@ if __name__ == "__main__":
     print(model.summary())
 
     # Load video for analysis
-    video = load_video(path_to_video)
+    video = load_video(r"C:\Users\simon\Desktop\OpenFace_datacollection\data annotation\videos\Filip.avi")
 
     # Get video metadata
     number_of_frames = get_frameCount(video)
